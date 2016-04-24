@@ -19,6 +19,8 @@
 #include "threads/vaddr.h"
 #include "threads/synch.h"
 
+#include "vm/frame.h"
+
 const uint8_t *USER_STACK_VADDR = (uint8_t *) PHYS_BASE - PGSIZE;
 static thread_func start_process NO_RETURN;
 static bool load (struct args_struct *args, void (**eip) (void), void **esp);
@@ -543,14 +545,14 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
       size_t page_zero_bytes = PGSIZE - page_read_bytes;
 
       /* Get a page of memory. */
-      uint8_t *kpage = palloc_get_page (PAL_USER);
+      uint8_t *kpage = F_allocate (PAL_USER);
       if (kpage == NULL)
         return false;
 
       /* Load this page. */
       if (file_read (file, kpage, page_read_bytes) != (int) page_read_bytes)
         {
-          palloc_free_page (kpage);
+          F_remove(kpage);
           return false; 
         }
       memset (kpage + page_read_bytes, 0, page_zero_bytes);
@@ -558,7 +560,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
       /* Add the page to the process's address space. */
       if (!install_page (upage, kpage, writable)) 
         {
-          palloc_free_page (kpage);
+          F_remove(kpage);
           return false; 
         }
 
@@ -579,7 +581,7 @@ setup_stack (struct args_struct *args_struct_ptr,void **esp)
   bool success_for_stack_page_allocation = false;
   bool success_for_setup_stack = false;
   
-  kpage = palloc_get_page (PAL_USER | PAL_ZERO);
+  kpage = F_allocate(PAL_USER | PAL_ZERO);
   if (kpage != NULL){
       success_for_stack_page_allocation = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success_for_stack_page_allocation){
@@ -587,7 +589,7 @@ setup_stack (struct args_struct *args_struct_ptr,void **esp)
         //If the minimal stack created successfully
         success_for_setup_stack=push_args_to_stack(args_struct_ptr, esp);
       }else{
-        palloc_free_page (kpage);
+        F_remove(kpage);
       } 
     }
    // hex_dump(*esp, *esp, (int) ((size_t) PHYS_BASE - (size_t) *esp), true);
