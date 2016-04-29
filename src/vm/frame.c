@@ -12,21 +12,18 @@ void frame_table_init (void)
 
 void* frame_alloc (enum palloc_flags flags)
 {
-  if ( (flags & PAL_USER) == 0 )
+  if ( !(flags & PAL_USER) )
     {
       return NULL;
     }
   void *frame = palloc_get_page(flags);
-  if (frame)
+  if (!frame && !frame_evict(frame))
+   {      
+        PANIC ("Frame could not be evicted because swap is full!");
+   }
+  else if(frame)
     {
-      frame_add_to_table(frame);
-    }
-  else
-    {
-      if (!frame_evict(frame))
-	{
-	  PANIC ("Frame could not be evicted because swap is full!");
-	}
+       frame_add_to_table(frame);        
     }
   return frame;
 }
@@ -36,16 +33,17 @@ void frame_free (void *frame)
   struct list_elem *e;
   
   lock_acquire(&frame_table_lock);
-  for (e = list_begin(&frame_table); e != list_end(&frame_table);
-       e = list_next(e))
+  e = list_begin(&frame_table);
+  while(e != list_end(&frame_table))
     {
       struct frame_entry *fte = list_entry(e, struct frame_entry, elem);
       if (fte->frame == frame)
-	{
-	  list_remove(e);
-	  free(fte);
-	  break;
-	}
+      {
+            list_remove(e);
+            free(fte);
+            break;
+      }
+           e = list_next(e);
     }
   lock_release(&frame_table_lock);
   palloc_free_page(frame);
