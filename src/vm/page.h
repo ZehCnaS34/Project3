@@ -26,19 +26,19 @@ struct sup_page_entry {
 bool add_file_to_page_table (struct file*,
                              int32_t, uint8_t*,
                              uint32_t, uint32_t,
-                             bool)
-bool load_file (struct sup_page_entry*)
-bool load_swap (struct sup_page_entry*)
-bool load_page (void*)
-bool load_mmap (struct sup_page_entry*)
-void page_table_destroy (struct hash*)
+                             bool);
+bool load_file (struct sup_page_entry*);
+bool load_swap (struct sup_page_entry*);
+bool load_page (void*);
+bool load_mmap (struct sup_page_entry*);
+void page_table_destroy (struct hash*);
 static unsigned page_hash_func (const struct hash_elem*,
-                                void* e UNUSED) // TODO: might take e out
+                                void* e UNUSED); // TODO: might take e out
 static bool page_less_func (const struct hash_elem*,
                             const struct hash_elem*,
-                            void* aux UNUSED)
-static void page_action_func (struct hash_elem*, void *aux UNUSED)
-void page_table_init (struct hash*)
-static struct sup_page_entry* get_spte (void*)
+                            void* aux UNUSED);
+static void page_action_func (struct hash_elem*, void *aux UNUSED);
+void page_table_init (struct hash*);
+static struct sup_page_entry* get_spte (void*);
 
 #endif /* vm/page.h */
