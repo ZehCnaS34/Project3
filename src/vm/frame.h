@@ -5,9 +5,6 @@
 #include <stdint.h>
 #include <list.h>
 
-typedef int tid_t;
-
-
 struct lock FTL; /* Frame table lock */
 struct list FT; /* Frame table */
 
