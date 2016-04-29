@@ -24,7 +24,7 @@ typedef int tid_t;
 typedef int pid_t;
 #define TID_ERROR ((tid_t) -1) /* Error value for tid_t. */
 #define PID_ERROR ((pid_t) -1) /* Error value for pid_t. */
-         
+
 #include "userprog/process.h"
 
 /* States in a process's life cycle. */;
