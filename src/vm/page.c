@@ -17,14 +17,14 @@ bool add_file_to_page_table (struct file *file, int32_t ofs, uint8_t *upage,
     {
       return false;
     }
-  spte->file = file;
-  spte->offset = ofs;
-  spte->uva = upage;
+  spte->file       = file;
+  spte->offset     = ofs;
+  spte->uva        = upage;
   spte->read_bytes = read_bytes;
   spte->zero_bytes = zero_bytes;
-  spte->writable = writable;
-  spte->is_loaded = false;
-  spte->type = FILE;
+  spte->writable   = writable;
+  spte->is_loaded  = false;
+  spte->type       = FILE;
 
   return (hash_insert(&thread_current()->spt, &spte->elem) == NULL);
 }
