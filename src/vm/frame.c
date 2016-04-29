@@ -1,10 +1,8 @@
-#include "frame.h"
-// thread headers
 #include "threads/malloc.h"
 #include "threads/palloc.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
-
+#include "frame.h"
 void FT_init(void)
 {
     list_init(&FT);
