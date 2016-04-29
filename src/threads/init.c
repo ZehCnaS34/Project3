@@ -104,7 +104,6 @@ main (void)
 #ifdef USERPROG
   tss_init ();
   gdt_init ();
-  FT_init();
 #endif
 
   /* Initialize interrupt handlers. */
