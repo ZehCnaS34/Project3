@@ -43,7 +43,7 @@ void frame_free (void *frame)
             free(fte);
             break;
       }
-           e = list_next(e));
+           e = list_next(e);
     }
   lock_release(&frame_table_lock);
   palloc_free_page(frame);
