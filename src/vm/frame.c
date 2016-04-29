@@ -67,5 +67,3 @@ bool frame_evict (void *frame)
   return false;
   // Use clock algorithm with 2 hands
 }
-Status API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Contact Help

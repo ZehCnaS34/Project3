@@ -23,5 +23,3 @@ void frame_add_to_table (void *frame);
 bool frame_evict (void *frame);
 
 #endif /* vm/frame.h */
-Status API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Contact Help
