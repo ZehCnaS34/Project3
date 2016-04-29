@@ -5,21 +5,23 @@
 #include <stdint.h>
 #include <list.h>
 
-struct lock FTL; /* Frame table lock */
-struct list FT; /* Frame table */
+struct lock frame_table_lock;
 
-struct FE { /* Frame Entry */
-    struct list_elem elem;
-    void* frame;
-    tid_t tid;
-    uint32_t* pte;
+struct list frame_table;
+
+struct frame_entry {
+  void *frame;
+  tid_t tid;
+  uint32_t *pte;
+  struct list_elem elem;
 };
 
-void FT_init(void);
-void* F_allocate(enum palloc_flags flags); 
-bool F_add(void* frame); // adding frame to table
-void F_remove(void* frame);
-bool F_evict(void* frame);
+void frame_table_init (void);
+void* frame_alloc (enum palloc_flags flags);
+void frame_free (void *frame);
+void frame_add_to_table (void *frame);
+bool frame_evict (void *frame);
 
-
-#endif /* VM_FRAME_H */
+#endif /* vm/frame.h */
+Status API Training Shop Blog About
+© 2016 GitHub, Inc. Terms Privacy Security Contact Help

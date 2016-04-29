@@ -2,70 +2,70 @@
 #include "threads/palloc.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
-#include "frame.h"
-void FT_init(void)
+#include "vm/frame.h"
+
+void frame_table_init (void)
 {
-    list_init(&FT);
-    lock_init(&FTL);
+  list_init(&frame_table);
+  lock_init(&frame_table_lock);
 }
-void* F_allocate(enum palloc_flags flags)
+
+void* frame_alloc (enum palloc_flags flags)
 {
-    if(!(PAL_USER & flags)
+  if ( (flags & PAL_USER) == 0 )
     {
-        return NULL;
+      return NULL;
     }
-    void *frame = palloc_get_page(flags);
-    if(!frame)
+  void *frame = palloc_get_page(flags);
+  if (frame)
     {
-        if(!F_evict(frame))
-        {
-            PANIC ("Frame could not be evicted because swap is full!");
-        }
+      frame_add_to_table(frame);
     }
-    else
+  else
     {
-        F_add(frame);
+      if (!frame_evict(frame))
+	{
+	  PANIC ("Frame could not be evicted because swap is full!");
+	}
     }
-    return frame;
+  return frame;
 }
-void F_add(void* frame)
+
+void frame_free (void *frame)
 {
-   struct FE *temp = malloc(sizeof(struct FE));
-   temp->frame = frame;
-   temp->tid = thread_tid();
-   
-   // using lock to avoid race conditions
-   lock_acquire(&FTL);
-   list_push_back(&FT, &temp->elem);
-   lock_release(&FTL);
-}
-void F_remove(void * frame)
-{
-    struct list_elem* etemp;
-    struct list_elem* etemp2;
-    
-    lock_acquire(FTL);
-    
-    /*  for efficiency ( instead of calling function 
-    multiple times)*/
-    etemp2 = list_end(&FT);
-    struct frame_entry *temp;
-    // finding the entry in the list
-     
-    for(etemp = list_begin(&FT); etemp != etemp2; e = list_next(&FT))
+  struct list_elem *e;
+  
+  lock_acquire(&frame_table_lock);
+  for (e = list_begin(&frame_table); e != list_end(&frame_table);
+       e = list_next(e))
     {
-        temp = list_entry(etemp,struct FE,elem);
-        if(temp->frame == frame)
-        {
-            list_remove(e);
-            free(temp);
-            break;
-        }
+      struct frame_entry *fte = list_entry(e, struct frame_entry, elem);
+      if (fte->frame == frame)
+	{
+	  list_remove(e);
+	  free(fte);
+	  break;
+	}
     }
-    lock_release(&FT);
-    palloc_free_page(frame);
+  lock_release(&frame_table_lock);
+  palloc_free_page(frame);
 }
-bool F_evict(void* frame)
+
+void frame_add_to_table (void *frame)
 {
-    return false;
+  struct frame_entry *fte = malloc(sizeof(struct frame_entry));
+  fte->frame = frame;
+  fte->tid = thread_tid();
+  
+  lock_acquire(&frame_table_lock);
+  list_push_back(&frame_table, &fte->elem);
+  lock_release(&frame_table_lock);
 }
+
+bool frame_evict (void *frame)
+{
+  return false;
+  // Use clock algorithm with 2 hands
+}
+Status API Training Shop Blog About
+© 2016 GitHub, Inc. Terms Privacy Security Contact Help
