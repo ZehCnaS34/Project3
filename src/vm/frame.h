@@ -5,12 +5,15 @@
 #include <stdint.h>
 #include <list.h>
 
+typedef int tid_t;
+
+
 struct lock FTL; /* Frame table lock */
 struct list FT; /* Frame table */
 
-struct FE{ /* Frame Entry */
+struct FE { /* Frame Entry */
     struct list_elem elem;
-    void*frame;
+    void* frame;
     tid_t tid;
     uint32_t* pte;
 };
