@@ -110,6 +110,9 @@ struct process
    blocked state is on a semaphore wait list. */
 struct thread
   {
+    int mapid;
+    struct list mmap_list;
+
     /* Owned by thread.c. */
     tid_t tid;                          /* Thread identifier. */
     enum thread_status status;          /* Thread state. */
@@ -137,6 +140,7 @@ struct thread
     unsigned magic;                     /* Detects stack overflow. */
     
     struct hash spt;
+
   };
 
 /* If false (default), use round-robin scheduler.

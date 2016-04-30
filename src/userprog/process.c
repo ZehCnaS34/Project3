@@ -102,15 +102,16 @@ start_process (void *args_)
   struct intr_frame if_;
   bool success = false;
   struct process *p;
- 
+
   page_table_init(&thread_current()->spt);
   /* Initialize interrupt frame and load executable. */
   memset (&if_, 0, sizeof if_);
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
-  success = load (args, &if_.eip, &if_.esp);
-  
+  success = load (args, &i4342016
+                  eip, &if_.esp);
+
   /* If successful signal waiting parent, else quit. */
   palloc_free_page (args);
   p = thread_current ()->proc;

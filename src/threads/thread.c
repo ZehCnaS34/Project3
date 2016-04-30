@@ -500,6 +500,9 @@ init_thread (struct thread *t, const char *name, int priority)
   t->fd = 2;
 #endif
 
+  list_init (&t->mmap_list);
+  t->mapid = 0;
+
   list_push_back (&all_list, &t->allelem);
 }
 
