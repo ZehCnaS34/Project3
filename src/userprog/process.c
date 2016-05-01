@@ -708,7 +708,7 @@ void process_remove_mmap(int mapping)
 {
   struct thread* t = thread_current();
   struct list_elem* e;
-  for (e = list_begin(&t->map_list); e != list_end (&t->mmap_list); e = list_next(e))
+  for (e = list_begin(&t->mmap_list); e != list_end (&t->mmap_list); e = list_next(e))
    {
        struct mmap_file *mm = list_entry (e, struct mmap_file, elem);
        if (mm->mapid != mapping && mapping != CLOSE_ALL)
