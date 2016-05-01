@@ -148,7 +148,7 @@ static struct sup_page_entry* get_spte (void *uva)
   return hash_entry (e, struct sup_page_entry, elem);
 }
 
-bool add_mmap_to_page_table(struct file* file, int32_t ofs, uint8_t upage, uint32_t read_bytes,uint32_t zerobytes)
+bool add_mmap_to_page_table(struct file* file, int32_t ofs, uint8_t upage, uint32_t read_bytes,uint32_t zero_bytes)
  {
    struct sup_page_entry *spte = malloc(sizeof(struct sup_page_entry));
    if (!spte)
