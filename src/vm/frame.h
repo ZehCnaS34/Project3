@@ -12,8 +12,8 @@ struct lock frame_table_lock;
 struct list frame_table;
 
 struct frame_entry {
+  void* frame;
   struct sup_page_entry *spte;
-  uint32_t *pte;
   struct list_elem elem;
 };
 
