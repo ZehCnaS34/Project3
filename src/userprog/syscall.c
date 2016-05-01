@@ -239,10 +239,10 @@ close (int fd)
    {
      exit(-1);
    }
-   void *addr = pagedir_get_page(thread_current()->pagedir, vaddr);
+    addr = pagedir_get_page(thread_current()->pagedir, vaddr);
     if (!addr)
     {
-      exit(ERROR);
+      exit(-1);
     }
     /* not sure */
    struct file *file = process_get_file(fd);
@@ -274,7 +274,7 @@ close (int fd)
  {
    process_remove_mmap(mapping);
  }
-satic void
+static void
 syscall_handler (struct intr_frame *f) 
 {
   uint32_t *esp = f->esp;
