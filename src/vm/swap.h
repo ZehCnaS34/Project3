@@ -17,3 +17,4 @@ struct block *swap_block;
 struct bitmap swap_map;
 
 #endif /* vm/swap.h */
+
