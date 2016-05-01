@@ -231,7 +231,11 @@ close (int fd)
     }
   }
   lock_release(&file_lock);
-
+}
+ void munmap (int mapping)
+ {
+   process_remove_mmap(mapping);
+ }
  int mmap (int fd, void *addr)
  {
    /* not sure */
@@ -239,7 +243,7 @@ close (int fd)
    {
      exit(-1);
    }
-    addr = pagedir_get_page(thread_current()->pagedir, vaddr);
+    addr = pagedir_get_page(thread_current()->pagedir, addr);
     if (!addr)
     {
       exit(-1);
@@ -270,10 +274,7 @@ close (int fd)
    return thread_current()->mapid;
  }
  
- void munmap (int mapping)
- {
-   process_remove_mmap(mapping);
- }
+
 static void
 syscall_handler (struct intr_frame *f) 
 {
