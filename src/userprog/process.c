@@ -711,7 +711,7 @@ void process_remove_mmap(int mapping)
   for (e = list_begin(&t->mmap_list); e != list_end (&t->mmap_list); e = list_next(e))
    {
        struct mmap_file *mm = list_entry (e, struct mmap_file, elem);
-       if (mm->mapid != mapping && mapping != CLOSE_ALL)
+       if (mm->mapid != mapping && mapping != -1)
        {
           if (mm->spte->is_loaded)
            {
