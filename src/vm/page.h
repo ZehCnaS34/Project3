@@ -8,6 +8,8 @@
 #define SWAP 1
 #define MMAP 2
 
+#define MAX_STACK_SIZE (1 << 10)
+
 /*
  * What the processor uses to translate from page to frame
  */
@@ -46,4 +48,6 @@ void page_table_init (struct hash*);
 static struct sup_page_entry* get_spte (void*);
 
 bool add_mmap_to_page_table(struct file* file, int32_t ofs, uint8_t upage, uint32_t read_bytes,uint32_t zero_bytes);
+
+bool grow_stack(void *uva);
 #endif /* vm/page.h */
