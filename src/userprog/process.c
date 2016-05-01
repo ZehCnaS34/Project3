@@ -707,7 +707,7 @@ bool process_add_mmap(struct sup_page_entry *spte)
 void process_remove_mmap(int mapping)
 {
   struct thread* t = thread_current();
-  struct list_elem e*;
+  struct list_elem* e;
   for (e = list_begin(&t->map_list); e != list_end (&t->mmap_list); e = list_next(e))
    {
        struct mmap_file *mm = list_entry (e, struct mmap_file, elem);
