@@ -7,6 +7,9 @@
 #define SWAP 1
 #define MMAP 2
 
+/*
+ * What the processor uses to translate from page to frame
+ */
 struct sup_page_entry {
   size_t offset; /// For files
   size_t read_bytes;
