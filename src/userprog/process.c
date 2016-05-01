@@ -109,8 +109,7 @@ start_process (void *args_)
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
   if_.cs = SEL_UCSEG;
   if_.eflags = FLAG_IF | FLAG_MBS;
-  success = load (args, &i4342016
-                  eip, &if_.esp);
+  success = load (args, &if_.eip, &if_.esp);
 
   /* If successful signal waiting parent, else quit. */
   palloc_free_page (args);
