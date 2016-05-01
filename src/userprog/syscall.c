@@ -252,7 +252,7 @@ close (int fd)
    struct file *file = process_get_file(fd);
    if (!file || !addr || ((uint32_t) addr % PGSIZE) != 0)
      {
-       return ERROR;
+       return -1;
      }
    thread_current()->mapid++;
    int32_t ofs = 0;
@@ -265,7 +265,7 @@ close (int fd)
  				  addr, page_read_bytes, page_zero_bytes))
  	{
  	  munmap(thread_current()->mapid);
- 	  return ERROR;
+ 	  return -1;
  	}
        read_bytes -= page_read_bytes;
        ofs += page_read_bytes;
