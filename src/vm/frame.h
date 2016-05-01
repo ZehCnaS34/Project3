@@ -2,6 +2,7 @@
 #define VM_FRAME_H
 
 #include "threads/synch.h"
+#include "threads/palloc.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <list.h>
@@ -11,8 +12,7 @@ struct lock frame_table_lock;
 struct list frame_table;
 
 struct frame_entry {
-  void *frame;
-  tid_t tid;
+  struct sup_page_entry *spte;
   uint32_t *pte;
   struct list_elem elem;
 };

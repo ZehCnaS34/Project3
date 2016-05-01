@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <list.h>
 
+
 /* Function definitions. */
 tid_t process_execute (const char *args);
 int process_wait (tid_t);
@@ -39,7 +40,14 @@ struct file_descriptor
     struct file *file;      /* Pointer to open file. */
     struct list_elem elem;  /* Element for list file lists. */
   };
+struct mmap_file{
+  struct sup_page_entry *spte;
+  int mapid;
+  struct list_elem elem;
+};
 
+bool process_add_mmap(struct sup_page_entry *spte);
+void process_remove_mmap ( int mapping);
 
 
 #endif /* userprog/process.h */

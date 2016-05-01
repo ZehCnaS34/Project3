@@ -32,7 +32,7 @@ bool add_file_to_page_table (struct file *file, int32_t ofs, uint8_t *upage,
 
 bool load_file (struct sup_page_entry *spte)
 {
-  void* addr = pagedir_get_page (thread_current()->pagedir, spte->uva);
+  //void* addr = pagedir_get_page (thread_current()->pagedir, spte->uva);
   uint8_t *frame = frame_alloc (PAL_USER);
   if (!frame)
     {
@@ -83,7 +83,7 @@ bool load_page (void *uva)
       success = load_swap(spte);
       break;
     case MMAP:
-      success = load_mmap(spte);
+      success = load_file(spte);
       break;
     }
   return success;
@@ -122,6 +122,10 @@ static bool page_less_func (const struct hash_elem *a,
 static void page_action_func (struct hash_elem *e, void *aux UNUSED)
 {
   struct sup_page_entry *spte = hash_entry(e, struct sup_page_entry, elem);
+  if(spte->is_loaded){
+     frame_free(pagedir_get_page(thread_current()->pagedir, spte->uva));
+     pagedir_clear_page(thread_current()->pagedir, spte->uva);
+  }
   free(spte);
 }
 
@@ -144,4 +148,28 @@ static struct sup_page_entry* get_spte (void *uva)
   return hash_entry (e, struct sup_page_entry, elem);
 }
 
-
+bool add_mmap_to_page_table(struct file* file, int32_t ofs, uint8_t upage, uint32_t read_bytes,uint32_t zerobytes)
+ {
+   struct sup_page_entry *spte = malloc(sizeof(struct sup_page_entry));
+   if (!spte)
+     {
+       return false;
+     }
+   spte->is_loaded = false;
+   spte->type = MMAP;
+   spte->writable = true;
+   spte->read_bytes = read_bytes;
+   spte->zero_bytes = zero_bytes;
+   spte->file = file;
+   spte->offset = ofs;
+   spte->uva = upage;
+ 
+ 
+   if (!process_add_mmap(spte))
+     {
+       free(spte);
+       return false;
+     }
+ 
+   return (hash_insert(&thread_current()->spt, &spte->elem) == NULL);
+ }
