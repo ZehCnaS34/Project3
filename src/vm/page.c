@@ -61,7 +61,19 @@ bool load_file (struct sup_page_entry *spte)
 
 bool load_swap (struct sup_page_entry *spte)
 {
-  return false;
+    uint8_t *frame = frame_alloc (PAL_USER);
+    if (!frame)
+      {
+        return false;
+      }
+    swap_in(spte->swap_index, frame);
+    if (!install_page(spte->uva, frame, spte->writable))
+      {
+        frame_free(frame);
+        return false;
+      }
+    spte->is_loaded = true;
+     return true;
 }
 
 
@@ -135,7 +147,7 @@ void page_table_init (struct hash *spt)
 }
 
 
-static struct sup_page_entry* get_spte (void *uva)
+struct sup_page_entry* get_spte (void *uva)
 {
   struct sup_page_entry spte;
   spte.uva = pg_round_down(uva);
