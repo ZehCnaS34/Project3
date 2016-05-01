@@ -183,7 +183,7 @@ process_exit (void)
       file_close (file_d->file);
       free (file_d);
     }
-
+  process_remove_mmap(CLOSE_ALL);
   page_table_destroy(&cur->spt);
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
@@ -689,3 +689,43 @@ install_page (void *upage, void *kpage, bool writable)
           && pagedir_set_page (t->pagedir, upage, kpage, writable));
 }
 
+bool process_add_mmap(struct sup_page_entry *spte)
+{
+  struct mmap_file* mm = malloc(sizeof ( struct  mmap_file));
+  if( !mm ) 
+  {
+    // failed to create the mmap_file
+    return false;
+  }
+  // initializing the parameters for the mmap_file
+  mm->spte = spte;
+  mm->mapid = thread_current()->mapid;
+  list_push_back(&thread_current()->mmap_list, &mm->elem);
+  return true;
+}
+
+void proccess_remove_mmap(int mapping)
+{
+  struct thread* t = thread_current();
+  struct list_elem e*;
+  for (e = list_begin (&t->map_list); e != list_end (&t->mmap_list); e = list_next(e))
+   {
+       struct mmap_file *mm = list_entry (e, struct mmap_file, elem);
+       if (mm->mapid != mapping && mapping != CLOSE_ALL)
+       {
+          if (mm->spte->is_loaded)
+           {
+               if (pagedir_is_dirty(t->pagedir, mm->spte->uva))
+              {
+                  file_write_at(mm->spte->file, mm->spte->uva, mm->spte->read_bytes, mm->spte->offset);
+              }
+              frame_free(pagedir_get_page(t->pagedir, mm->spte->uva));
+              pagedir_clear_page(t->pagedir, mm->spte->uva);
+           }
+          hash_delete(&t->spt, &mm->spte->elem);
+          list_remove(&mm->elem);
+          free(mm->spte);
+          free(mm);
+       }
+   }
+}

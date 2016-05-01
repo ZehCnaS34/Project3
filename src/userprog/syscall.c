@@ -10,6 +10,8 @@
 #include <list.h>
 #include "threads/malloc.h"
 #include "devices/shutdown.h"
+#include "vm/frame.h"
+#include "vm/page.h"
 
 #define ARG0 (*(esp + 1))
 #define ARG1 (*(esp + 2))
@@ -229,9 +231,50 @@ close (int fd)
     }
   }
   lock_release(&file_lock);
-}
 
-static void
+ int mmap (int fd, void *addr)
+ {
+   /* not sure */
+   if(not_valid(addr))
+   {
+     exit(-1);
+   }
+   void *addr = pagedir_get_page(thread_current()->pagedir, vaddr);
+    if (!addr)
+    {
+      exit(ERROR);
+    }
+    /* not sure */
+   struct file *file = process_get_file(fd);
+   if (!file || !addr || ((uint32_t) addr % PGSIZE) != 0)
+     {
+       return ERROR;
+     }
+   thread_current()->mapid++;
+   int32_t ofs = 0;
+   uint32_t read_bytes = file_length(file);
+   while (read_bytes > 0)
+     {
+       uint32_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
+       uint32_t page_zero_bytes = PGSIZE - page_read_bytes;
+       if (!add_mmap_to_page_table(file, ofs,
+ 				  addr, page_read_bytes, page_zero_bytes))
+ 	{
+ 	  munmap(thread_current()->mapid);
+ 	  return ERROR;
+ 	}
+       read_bytes -= page_read_bytes;
+       ofs += page_read_bytes;
+       addr += PGSIZE;
+   }
+   return thread_current()->mapid;
+ }
+ 
+ void munmap (int mapping)
+ {
+   process_remove_mmap(mapping);
+ }
+satic void
 syscall_handler (struct intr_frame *f) 
 {
   uint32_t *esp = f->esp;
@@ -279,6 +322,14 @@ syscall_handler (struct intr_frame *f)
       case SYS_CLOSE:
         close ((int) ARG0);
         break;
+        // not sure this works
+      case SYS_MMAP:
+        f->eax = mmap( ARG0 , (void *) ARG1)
+       break;
+      case SYS_MUNMAP:
+        munmap(ARG0);
+        break;  
+        // not sure this works 
       default:
         printf ("Invalid syscall!\n");
         thread_exit();
