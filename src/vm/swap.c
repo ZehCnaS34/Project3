@@ -1,4 +1,4 @@
-#define "vm/swap.h"
+#include "vm/swap.h"
 
 void swap_init (void)
 {
