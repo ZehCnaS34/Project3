@@ -4,6 +4,10 @@
 #include "threads/thread.h"
 #include "vm/frame.h"
 
+/***
+ * Initialize the frame table
+ *
+ */
 void frame_table_init (void)
 {
   list_init(&frame_table);
