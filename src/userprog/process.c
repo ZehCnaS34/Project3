@@ -183,7 +183,7 @@ process_exit (void)
       file_close (file_d->file);
       free (file_d);
     }
-  process_remove_mmap(CLOSE_ALL);
+  process_remove_mmap(-1);
   page_table_destroy(&cur->spt);
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
