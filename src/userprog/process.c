@@ -66,6 +66,13 @@ process_execute (const char *args)
   if (args_struct_ptr == NULL)
     return TID_ERROR;
   strlcpy (args_struct_ptr->args, args, ARGS_SIZE);
+   
+   // not sure if it should be args or args_struct_ptr
+   if(is_user_vaddr(args))
+   {
+     args = pagedir_get_page(thread_current()->pagedir, args);
+   }
+   
 
   /* Tokenize arguments. */
   argument_tokenize (args_struct_ptr);
@@ -74,7 +81,8 @@ process_execute (const char *args)
       palloc_free_page (args_struct_ptr);
       return TID_ERROR;
     }
-
+  
+ 
   /* Create a new thread to execute FILE_NAME. */
   tid = thread_create (args_struct_ptr->argv[0], PRI_DEFAULT, start_process, args_struct_ptr);
 
@@ -589,21 +597,18 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 static bool
 setup_stack (struct args_struct *args_struct_ptr,void **esp) 
 {
-  uint8_t *kpage;
+ 
   bool success_for_stack_page_allocation = false;
   bool success_for_setup_stack = false;
   
-  kpage = frame_alloc(PAL_USER | PAL_ZERO);
-  if (kpage != NULL){
-      success_for_stack_page_allocation = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
-      if (success_for_stack_page_allocation){
-        *esp = PHYS_BASE;
-        //If the minimal stack created successfully
-        success_for_setup_stack=push_args_to_stack(args_struct_ptr, esp);
-      }else{
-        frame_free(kpage);
-      } 
-    }
+ success_for_stack_page_allocation = grow_stack(((uint8_t *) PHYS_BASE) - PGSIZE);
+if (success_for_stack_page_allocation){
+    *esp = PHYS_BASE;
+    //If the minimal stack created successfully
+   success_for_setup_stack=push_args_to_stack(args_struct_ptr, esp);
+    }/*else{
+      frame_free(kpage);
+    } */
    // hex_dump(*esp, *esp, (int) ((size_t) PHYS_BASE - (size_t) *esp), true);
   return (success_for_stack_page_allocation && success_for_setup_stack);
 }
