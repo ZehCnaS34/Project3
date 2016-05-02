@@ -1,10 +1,13 @@
+#include "filesys/file.h"
 #include "threads/malloc.h"
 #include "threads/palloc.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
 #include "userprog/pagedir.h"
+#include "userprog/syscall.h"
 #include "vm/frame.h"
 #include "vm/page.h"
+#include "vm/swap.h"
 
 /***
  * Initialize the frame table
@@ -16,9 +19,9 @@ void frame_table_init (void)
   lock_init(&frame_table_lock);
 }
 
-void* frame_alloc (enum palloc_flags flags)
+void* frame_alloc (enum palloc_flags flags, struct sup_page_entry *spte)
 {
-  if ( !(flags & PAL_USER) )
+  if ( (flags & PAL_USER) == 0 )
     {
       return NULL;
     }
@@ -28,13 +31,18 @@ void* frame_alloc (enum palloc_flags flags)
     frame_add_to_table(frame);
   }
   else
-  {
-    frame = frame_evict();
-    if(!frame)
     {
-      PANIC ("Frame couldn't be evicted as swap was full");
+      while (!frame)
+	{
+	  frame = frame_evict(flags);
+	  lock_release(&frame_table_lock);
+	}
+      if (!frame)
+	{
+	  PANIC ("Frame could not be evicted because swap is full!");
+	}
+      frame_add_to_table(frame, spte);
     }
-  }
   return frame;
 }
 
