@@ -703,7 +703,7 @@ struct file* process_get_file (int fd)
   for (e = list_begin (&t->files); e != list_end (&t->files);
        e = list_next (e))
         {
-          struct process_file *pf = list_entry (e, struct process_file, elem);
+          struct file_descriptor *pf = list_entry (e, struct file_descriptor, elem);
           if (fd == pf->fd)
 	    {
 	      return pf->file;
