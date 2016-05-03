@@ -20,7 +20,7 @@
 #define ARG4 (*(esp + 5))
 #define ARG5 (*(esp + 6))
 
-struct lock file_lock;
+
 
 static void syscall_handler (struct intr_frame *);
 
