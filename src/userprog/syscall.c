@@ -39,8 +39,8 @@ struct file *get_file(int fd)
   for (e = list_tail (&cur->files); e != list_head (&cur->files); e = list_prev (e))
     {
       file_d = list_entry (e, struct file_descriptor, elem);
-      if (file_d->fd == fd) 
-        return file_d->file;   
+      if (file_d->fd == fd)
+        return file_d->file;
     }
   return NULL;
 }
@@ -49,16 +49,16 @@ bool not_valid(const void *pointer)
 {
   return (!is_user_vaddr(pointer) || pointer == NULL || pagedir_get_page (thread_current ()->pagedir, pointer) == NULL);
 }
-void 
+void
 halt (void)
 {
   shutdown_power_off();
 }
 
 
-void 
+void
 exit (int status)
-{	
+{
   thread_current ()->proc->exit = status;
   thread_exit ();
 }
@@ -67,7 +67,7 @@ pid_t exec (const char *cmd_line)
 {
   if (not_valid(cmd_line))
     exit (-1);
-  return process_execute(cmd_line); 
+  return process_execute(cmd_line);
 }
 
 int 
