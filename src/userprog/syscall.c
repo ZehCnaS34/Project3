@@ -239,39 +239,38 @@ close (int fd)
  {
    process_remove_mmap(mapping);
  }
- int mmap (int fd, void *addr)
- {
-    addr = pagedir_get_page(thread_current()->pagedir, addr);
-    if (!addr)
+int mmap (int fd, void *addr)
+{
+  struct file *old_file = process_get_file(fd);
+  if (!old_file || !is_user_vaddr(addr) || addr < USER_VADDR_BOTTOM ||
+      ((uint32_t) addr % PGSIZE) != 0)
     {
-      exit(-1);
+      return -1;
     }
-    /* not sure */
-   struct file *file = process_get_file(fd);
-   if (!file || !is_user_vaddr(addr) || addr < USER_VADDR_BOTTOM ||
-       ((uint32_t) addr % PGSIZE) != 0)
-     {
-       return -1;
-     }
-   thread_current()->mapid++;
-   int32_t ofs = 0;
-   uint32_t read_bytes = file_length(file);
-   while (read_bytes > 0)
-   {
-       uint32_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
-       uint32_t page_zero_bytes = PGSIZE - page_read_bytes;
-       if (!add_mmap_to_page_table(file, ofs,
- 				  addr, page_read_bytes, page_zero_bytes))
-      {
-        munmap(thread_current()->mapid);
-        return -1;
-      }
-       read_bytes -= page_read_bytes;
-       ofs += page_read_bytes;
-       addr += PGSIZE;
-   }
-   return thread_current()->mapid;
- }
+  struct file *file = file_reopen(old_file);
+  if (!file || file_length(old_file) == 0)
+    {
+      return -1;
+    }
+  thread_current()->mapid++;
+  int32_t ofs = 0;
+  uint32_t read_bytes = file_length(file);
+  while (read_bytes > 0)
+    {
+      uint32_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
+      uint32_t page_zero_bytes = PGSIZE - page_read_bytes;
+      if (!add_mmap_to_page_table(file, ofs,
+				  addr, page_read_bytes, page_zero_bytes))
+	{
+	  munmap(thread_current()->mapid);
+	  return ERROR;
+	}
+      read_bytes -= page_read_bytes;
+      ofs += page_read_bytes;
+      addr += PGSIZE;
+  }
+  return thread_current()->mapid;
+}
  
 void unpin_ptr (void* vaddr)
 {
