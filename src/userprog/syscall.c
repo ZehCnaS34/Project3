@@ -258,15 +258,15 @@ close (int fd)
    int32_t ofs = 0;
    uint32_t read_bytes = file_length(file);
    while (read_bytes > 0)
-     {
+   {
        uint32_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
        uint32_t page_zero_bytes = PGSIZE - page_read_bytes;
        if (!add_mmap_to_page_table(file, ofs,
  				  addr, page_read_bytes, page_zero_bytes))
- 	{
- 	  munmap(thread_current()->mapid);
- 	  return -1;
- 	}
+      {
+        munmap(thread_current()->mapid);
+        return -1;
+      }
        read_bytes -= page_read_bytes;
        ofs += page_read_bytes;
        addr += PGSIZE;
