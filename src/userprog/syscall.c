@@ -263,7 +263,7 @@ int mmap (int fd, void *addr)
 				  addr, page_read_bytes, page_zero_bytes))
 	{
 	  munmap(thread_current()->mapid);
-	  return ERROR;
+	  return -1;
 	}
       read_bytes -= page_read_bytes;
       ofs += page_read_bytes;
