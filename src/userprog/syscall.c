@@ -20,6 +20,9 @@
 #define ARG4 (*(esp + 5))
 #define ARG5 (*(esp + 6))
 
+void unpin_ptr (void* vaddr);
+void unpin_string (void* str);
+void unpin_buffer (void* buffer, unsigned size);
 
 
 static void syscall_handler (struct intr_frame *);
@@ -270,7 +273,35 @@ close (int fd)
    return thread_current()->mapid;
  }
  
+void unpin_ptr (void* vaddr)
+{
+  struct sup_page_entry *spte = get_spte(vaddr);
+  if (spte)
+    {
+      spte->pinned = false;
+    }
+}
 
+void unpin_string (void* str)
+{
+  unpin_ptr(str);
+  while (* (char *) str != 0)
+    {
+      str = (char *) str + 1;
+      unpin_ptr(str);
+    }
+}
+
+void unpin_buffer (void* buffer, unsigned size)
+{
+  unsigned i;
+  char* local_buffer = (char *) buffer;
+  for (i = 0; i < size; i++)
+    {
+      unpin_ptr(local_buffer);
+      local_buffer++;
+    }
+}
 static void
 syscall_handler (struct intr_frame *f) 
 {
@@ -288,27 +319,32 @@ syscall_handler (struct intr_frame *f)
         break;
       case SYS_EXEC:
         f->eax = exec ((const char *) ARG0);
+        unpin_string((void *) arg[0]);
         break;
       case SYS_WAIT:
         f->eax = wait ((pid_t) ARG0);
         break;
       case SYS_CREATE:
         f->eax = create ((const char *) ARG0, (unsigned) ARG1);
+        unpin_string((void *) arg[0]);
         break;
       case SYS_REMOVE:
         f->eax = remove ((const char *) ARG0);
         break;
       case SYS_OPEN:
         f->eax = open ((const char *) ARG0);
+        unpin_string((void *) arg[0]);
         break;
       case SYS_FILESIZE:
         f->eax = filesize ((int) ARG0);
         break;
       case SYS_READ:
         f->eax = read ((int) ARG0, (void *) ARG1, (unsigned) ARG2);
+        unpin_buffer((void *) arg[1], (unsigned) arg[2]);
         break;
       case SYS_WRITE:
         f->eax = write ((int) ARG0, (void *) ARG1, (unsigned) ARG2);
+        unpin_buffer((void *) arg[1], (unsigned) arg[2]);
         break;
       case SYS_SEEK:
         seek ((int) ARG0, (unsigned) ARG1);
@@ -331,6 +367,7 @@ syscall_handler (struct intr_frame *f)
         printf ("Invalid syscall!\n");
         thread_exit();
     }
+    unpin_ptr(f->esp);
 }
 
 
