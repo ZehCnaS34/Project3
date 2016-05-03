@@ -18,9 +18,11 @@
 #include "threads/thread.h"
 #include "threads/vaddr.h"
 #include "threads/synch.h"
+#include "userprog/syscall.h"
 
 #include "vm/frame.h"
 #include "vm/page.h"
+#include "vm/swap.h"
 
 
 const uint8_t *USER_STACK_VADDR = (uint8_t *) PHYS_BASE - PGSIZE;
