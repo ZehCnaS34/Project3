@@ -238,11 +238,6 @@ close (int fd)
  }
  int mmap (int fd, void *addr)
  {
-      /* not sure */
-   if(not_valid(addr))
-   {
-     exit(-1);
-   }
     addr = pagedir_get_page(thread_current()->pagedir, addr);
     if (!addr)
     {
@@ -250,7 +245,8 @@ close (int fd)
     }
     /* not sure */
    struct file *file = process_get_file(fd);
-   if (!file || !addr || ((uint32_t) addr % PGSIZE) != 0)
+   if (!file || !is_user_vaddr(addr) || addr < USER_VADDR_BOTTOM ||
+       ((uint32_t) addr % PGSIZE) != 0)
      {
        return -1;
      }
