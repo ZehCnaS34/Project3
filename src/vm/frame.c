@@ -99,11 +99,11 @@ void* frame_evict (enum palloc_flags flags)
 		{
 		  if (fte->spte->type == MMAP)
 		    {
-		      lock_acquire(&filesys_lock);
+		      lock_acquire(&file_lock);
 		      file_write_at(fte->spte->file, fte->frame,
 				    fte->spte->read_bytes,
 				    fte->spte->offset);
-		      lock_release(&filesys_lock);
+		      lock_release(&file_lock);
 		    }
 		  else
 		    {

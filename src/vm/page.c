@@ -122,16 +122,16 @@ bool load_file (struct sup_page_entry *spte)
     }
   if (spte->read_bytes > 0)
     {
-      lock_acquire(&filesys_lock);
+      lock_acquire(&file_lock);
       if ((int) spte->read_bytes != file_read_at(spte->file, frame,
 						 spte->read_bytes,
 						 spte->offset))
 	{
-	  lock_release(&filesys_lock);
+	  lock_release(&file_lock);
 	  frame_free(frame);
 	  return false;
 	}
-      lock_release(&filesys_lock);
+      lock_release(&file_lock);
       memset(frame + spte->read_bytes, 0, spte->zero_bytes);
     }
 
