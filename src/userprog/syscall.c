@@ -319,32 +319,32 @@ syscall_handler (struct intr_frame *f)
         break;
       case SYS_EXEC:
         f->eax = exec ((const char *) ARG0);
-        unpin_string((void *) arg[0]);
+        unpin_string((void *) ARG0);
         break;
       case SYS_WAIT:
         f->eax = wait ((pid_t) ARG0);
         break;
       case SYS_CREATE:
         f->eax = create ((const char *) ARG0, (unsigned) ARG1);
-        unpin_string((void *) arg[0]);
+        unpin_string((void *) ARG0);
         break;
       case SYS_REMOVE:
         f->eax = remove ((const char *) ARG0);
         break;
       case SYS_OPEN:
         f->eax = open ((const char *) ARG0);
-        unpin_string((void *) arg[0]);
+        unpin_string((void *) ARG0);
         break;
       case SYS_FILESIZE:
         f->eax = filesize ((int) ARG0);
         break;
       case SYS_READ:
         f->eax = read ((int) ARG0, (void *) ARG1, (unsigned) ARG2);
-        unpin_buffer((void *) arg[1], (unsigned) arg[2]);
+        unpin_buffer((void *) ARG1, (unsigned) ARG2);
         break;
       case SYS_WRITE:
         f->eax = write ((int) ARG0, (void *) ARG1, (unsigned) ARG2);
-        unpin_buffer((void *) arg[1], (unsigned) arg[2]);
+        unpin_buffer((void *) ARG1, (unsigned) ARG2);
         break;
       case SYS_SEEK:
         seek ((int) ARG0, (unsigned) ARG1);
