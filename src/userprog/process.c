@@ -720,7 +720,7 @@ void process_remove_mmap (int mapping)
     {
       next = list_next(e);
       struct mmap_file *mm = list_entry (e, struct mmap_file, elem);
-      if (mm->mapid == mapping || mapping == CLOSE_ALL)
+      if (mm->mapid == mapping || mapping == -1)
 	{
 	  mm->spte->pinned = true;
 	  if (mm->spte->is_loaded)
