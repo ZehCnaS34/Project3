@@ -68,24 +68,23 @@ process_execute (const char *args)
   if (args_struct_ptr == NULL)
     return TID_ERROR;
   strlcpy (args_struct_ptr->args, args, ARGS_SIZE);
-   
+
    // not sure if it should be args or args_struct_ptr
    if(is_user_vaddr(args))
    {
      args = pagedir_get_page(thread_current()->pagedir, args);
    }
-   
+
 
   /* Tokenize arguments. */
   argument_tokenize (args_struct_ptr);
   if (args_struct_ptr->argc == BAD_ARGS)
-    { 
+    {
       palloc_free_page (args_struct_ptr);
       return TID_ERROR;
     }
-  
- 
   /* Create a new thread to execute FILE_NAME. */
+
   tid = thread_create (args_struct_ptr->argv[0], PRI_DEFAULT, start_process, args_struct_ptr);
 
   /* If a thread was created wait for process to begin or fail. */

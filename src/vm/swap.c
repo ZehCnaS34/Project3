@@ -33,7 +33,7 @@ size_t swap_out (void *frame)
 
   size_t i;
   for (i = 0; i < SECTORS_PER_PAGE; i++)
-    { 
+    {
       block_write(swap_block, free_index * SECTORS_PER_PAGE + i,
 		  (uint8_t *) frame + i * BLOCK_SECTOR_SIZE);
     }
