@@ -20,7 +20,7 @@
 #define ARG4 (*(esp + 5))
 #define ARG5 (*(esp + 6))
 
-struct lock file_lock;
+
 
 static void syscall_handler (struct intr_frame *);
 
@@ -238,6 +238,7 @@ close (int fd)
  }
  int mmap (int fd, void *addr)
  {
+   return -1;
    /* not sure */
    if(not_valid(addr))
    {

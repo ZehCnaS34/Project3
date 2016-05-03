@@ -162,7 +162,7 @@ page_fault (struct intr_frame *f)
     if (spte)
     {
       load = load_page(spte);
-    }
+    } 
     else if (fault_addr <= f->esp - STACK_HEURISTIC)
     {
       load = grow_stack(fault_addr);

@@ -18,9 +18,11 @@
 #include "threads/thread.h"
 #include "threads/vaddr.h"
 #include "threads/synch.h"
+#include "userprog/syscall.h"
 
 #include "vm/frame.h"
 #include "vm/page.h"
+#include "vm/swap.h"
 
 
 const uint8_t *USER_STACK_VADDR = (uint8_t *) PHYS_BASE - PGSIZE;
@@ -709,28 +711,57 @@ bool process_add_mmap(struct sup_page_entry *spte)
   return true;
 }
 
-void process_remove_mmap(int mapping)
+void process_remove_mmap (int mapping)
 {
-  struct thread* t = thread_current();
-  struct list_elem* e;
-  for (e = list_begin(&t->mmap_list); e != list_end (&t->mmap_list); e = list_next(e))
-   {
-       struct mmap_file *mm = list_entry (e, struct mmap_file, elem);
-       if (mm->mapid != mapping && mapping != -1)
-       {
-          if (mm->spte->is_loaded)
-           {
-               if (pagedir_is_dirty(t->pagedir, mm->spte->uva))
-              {
-                  file_write_at(mm->spte->file, mm->spte->uva, mm->spte->read_bytes, mm->spte->offset);
-              }
-              frame_free(pagedir_get_page(t->pagedir, mm->spte->uva));
-              pagedir_clear_page(t->pagedir, mm->spte->uva);
-           }
-          hash_delete(&t->spt, &mm->spte->elem);
-          list_remove(&mm->elem);
-          free(mm->spte);
-          free(mm);
-       }
-   }
+  struct thread *t = thread_current();
+  struct list_elem *next, *e = list_begin(&t->mmap_list);
+  struct file *f = NULL;
+  int close = 0;
+
+  while (e != list_end (&t->mmap_list))
+    {
+      next = list_next(e);
+      struct mmap_file *mm = list_entry (e, struct mmap_file, elem);
+      if (mm->mapid == mapping || mapping == -1)
+	{
+	  mm->spte->pinned = true;
+	  if (mm->spte->is_loaded)
+	    {
+	      if (pagedir_is_dirty(t->pagedir, mm->spte->uva))
+		{
+		  lock_acquire(&file_lock);
+		  file_write_at(mm->spte->file, mm->spte->uva,
+				mm->spte->read_bytes, mm->spte->offset);
+		  lock_release(&file_lock);
+		}
+	      frame_free(pagedir_get_page(t->pagedir, mm->spte->uva));
+	      pagedir_clear_page(t->pagedir, mm->spte->uva);
+	    }
+	  if (mm->spte->type != HASH_ERROR)
+	    {
+	      hash_delete(&t->spt, &mm->spte->elem);
+	    }
+	  list_remove(&mm->elem);
+	  if (mm->mapid != close)
+	    {
+	      if (f)
+		{
+		  lock_acquire(&file_lock);
+		  file_close(f);
+		  lock_release(&file_lock);
+		}
+	      close = mm->mapid;
+	      f = mm->spte->file;
+	    }
+	  free(mm->spte);
+	  free(mm);
+	}
+      e = next;
+    }
+  if (f)
+    {
+      lock_acquire(&file_lock);
+      file_close(f);
+      lock_release(&file_lock);
+    }
 }
