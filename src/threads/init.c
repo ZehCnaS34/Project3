@@ -30,6 +30,7 @@
 #include "userprog/tss.h"
 #include "vm/frame.h"
 #include "vm/page.h"
+#include "vm/swap.h"
 #else
 #include "tests/threads/tests.h"
 #endif
@@ -53,6 +54,7 @@ static const char *filesys_bdev_name;
 static const char *scratch_bdev_name;
 #ifdef VM
 static const char *swap_bdev_name;
+swap_init();
 #endif
 #endif /* FILESYS */
 

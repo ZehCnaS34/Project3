@@ -238,6 +238,7 @@ close (int fd)
  }
  int mmap (int fd, void *addr)
  {
+   return -1;
    /* not sure */
    if(not_valid(addr))
    {
