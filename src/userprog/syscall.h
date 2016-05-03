@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-struct lock filesys_lock;
-
 void syscall_init (void);
 
 #endif /* userprog/syscall.h */

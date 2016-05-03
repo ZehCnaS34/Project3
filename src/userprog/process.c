@@ -727,10 +727,10 @@ void process_remove_mmap (int mapping)
 	    {
 	      if (pagedir_is_dirty(t->pagedir, mm->spte->uva))
 		{
-		  lock_acquire(&filesys_lock);
+		  lock_acquire(&file_lock);
 		  file_write_at(mm->spte->file, mm->spte->uva,
 				mm->spte->read_bytes, mm->spte->offset);
-		  lock_release(&filesys_lock);
+		  lock_release(&file_lock);
 		}
 	      frame_free(pagedir_get_page(t->pagedir, mm->spte->uva));
 	      pagedir_clear_page(t->pagedir, mm->spte->uva);
@@ -744,9 +744,9 @@ void process_remove_mmap (int mapping)
 	    {
 	      if (f)
 		{
-		  lock_acquire(&filesys_lock);
+		  lock_acquire(&file_lock);
 		  file_close(f);
-		  lock_release(&filesys_lock);
+		  lock_release(&file_lock);
 		}
 	      close = mm->mapid;
 	      f = mm->spte->file;
@@ -758,8 +758,8 @@ void process_remove_mmap (int mapping)
     }
   if (f)
     {
-      lock_acquire(&filesys_lock);
+      lock_acquire(&file_lock);
       file_close(f);
-      lock_release(&filesys_lock);
+      lock_release(&file_lock);
     }
 }
